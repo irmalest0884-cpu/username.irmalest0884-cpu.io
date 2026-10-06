@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimPus-RME | Sistem Rekam Medis Elektronik Terintegrasi Puskesmas Takokak</title>
+  <meta name="description"
+    content="Aplikasi Rekam Medis Elektronik (RME) Puskesmas terintegrasi SATUSEHAT (HL7 FHIR) dan BPJS P-Care sesuai Permenkes No. 24 Tahun 2022">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="theme-light">
+  <div id="app" class="app-layout">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M2 12h20M7 7l10 10M17 7L7 17" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1 class="brand-title">SimPus-RME</h1>
+          <span class="brand-subtitle">Puskesmas Takokak Cianjur</span>
+        </div>
+      </div>
+
+      <div class="compliance-badge">
+        <span class="badge-dot"></span>
+        <span>Permenkes 24/2022 &bull; Paripurna</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">LAYANAN UTAMA</div>
+        <button class="nav-item active" data-view="dashboard" id="nav-dashboard">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1" />
+            <rect x="14" y="3" width="7" height="5" rx="1" />
+            <rect x="14" y="12" width="7" height="9" rx="1" />
+            <rect x="3" y="16" width="7" height="5" rx="1" />
+          </svg>
+          <span>Dashboard & Antrean</span>
+          <span class="badge-count" id="badge-total-antrean">8</span>
+        </button>
+
+        <button class="nav-item" data-view="pendaftaran" id="nav-pendaftaran">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <line x1="19" y1="8" x2="19" y2="14" />
+            <line x1="22" y1="11" x2="16" y2="11" />
+          </svg>
+          <span>Loket Pendaftaran</span>
+        </button>
+
+        <button class="nav-item" data-view="triase" id="nav-triase">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+          <span>Triase & TTV</span>
+          <span class="badge-pill pill-warning" id="badge-triase-pending">3</span>
+        </button>
+
+        <button class="nav-item" data-view="rme-dokter" id="nav-rme-dokter">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+          <span>Rekam Medis (Dokter)</span>
+          <span class="badge-pill pill-primary" id="badge-dokter-active">4</span>
+        </button>
+
+        <button class="nav-item" data-view="farmasi" id="nav-farmasi">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+            <path d="m8.5 8.5 7 7" />
+          </svg>
+          <span>Apotek & E-Resep</span>
+          <span class="badge-pill pill-info" id="badge-farmasi-pending">2</span>
+        </button>
+
+        <button class="nav-item" data-view="lab" id="nav-lab">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 2v7.31L4.69 19.3A2 2 0 0 0 6.4 22h11.2a2 2 0 0 0 1.71-2.7L14 9.31V2" />
+            <path d="M8.5 2h7" />
+            <path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
+          </svg>
+          <span>Laboratorium</span>
+        </button>
+
+        <div class="nav-section-label">INTEROPERABILITAS & LAPORAN</div>
+        <button class="nav-item" data-view="satusehat" id="nav-satusehat">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m4.93 4.93 4.24 4.24" />
+            <path d="m14.83 9.17 4.24-4.24" />
+            <path d="m14.83 14.83 4.24 4.24" />
+            <path d="m9.17 14.83-4.24 4.24" />
+            <circle cx="12" cy="12" r="4" />
+          </svg>
+          <span>SATUSEHAT Gateway</span>
+          <span class="badge-status-dot online"></span>
+        </button>
+
+        <button class="nav-item" data-view="laporan" id="nav-laporan">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+            <path d="M22 12A10 10 0 0 0 12 2v10z" />
+          </svg>
+          <span>Laporan LB1 & Surveilans</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="integration-status">
+          <div class="status-row">
+            <span class="status-indicator active"></span>
+            <span class="status-label">SATUSEHAT (FHIR)</span>
+            <span class="status-tag">Connected</span>
+          </div>
+          <div class="status-row">
+            <span class="status-indicator active"></span>
+            <span class="status-label">BPJS P-Care</span>
+            <span class="status-tag">Bridged</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-wrapper">
+
+      <!-- TOPBAR / HEADER -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <div class="header-breadcrumb">
+            <span class="crumb-root">Puskesmas Takokak</span>
+            <span class="crumb-separator">/</span>
+            <span class="crumb-current" id="current-page-title">Dashboard & Monitoring Antrean</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Realtime Clock -->
+          <div class="realtime-clock" id="realtime-clock">
+            <span class="clock-date" id="live-date">Selasa, 06 Okt 2026</span>
+            <span class="clock-time" id="live-time">21:35:00 WIB</span>
+          </div>
+
+          <!-- Audio Call Bell Test -->
+          <button class="btn-icon" id="btn-sound-test" title="Coba Suara Panggilan Antrean">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button class="btn-icon" id="theme-toggle" title="Ganti Tema">
+            <svg class="sun-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </button>
+
+          <!-- Active User Role Selector -->
+          <div class="user-profile-menu">
+            <div class="avatar">DR</div>
+            <div class="user-details">
+              <select id="user-role-select" class="role-select" title="Ganti Peran Pengguna">
+                <option value="dokter">dr. Rifki Ihsan Maulana (Dokter)</option>
+                <option value="perawat">Ns. Siti Nurjanah, S.Kep (Perawat)</option>
+                <option value="farmasi">Apt. Septi Anggi Lestari (Apoteker)</option>
+                <option value="loket">Irma Lestari (Petugas Loket)</option>
+                <option value="admin">Hodidjah, S Tr.Keb (Kepala Puskesmas)</option>
+              </select>
+              <span class="user-role-sub">SIP: 503/128/SIP-D/2024</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINER -->
+      <main class="content-container">
+
+        <!-- ============================================== -->
+        <!-- VIEW 1: DASHBOARD & MONITORING ANTREAN -->
+        <!-- ============================================== -->
+        <section class="view-panel active" id="view-dashboard">
+          <!-- Top Metric Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card card-teal">
+              <div class="metric-header">
+                <span class="metric-title">Total Kunjungan Hari Ini</span>
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-value" id="stat-total-kunjungan">42</div>
+              <div class="metric-footer">
+                <span class="trend-up">+14% dari kemarin</span>
+                <span class="metric-sub">Target harian 60</span>
+              </div>
+            </div>
+
+            <div class="metric-card card-blue">
+              <div class="metric-header">
+                <span class="metric-title">Pasien Dalam Antrean</span>
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-value" id="stat-antrean-aktif">9</div>
+              <div class="metric-footer">
+                <span>Rata-rata waktu tunggu: <strong>11 mnt</strong></span>
+              </div>
+            </div>
+
+            <div class="metric-card card-green">
+              <div class="metric-header">
+                <span class="metric-title">Kunjungan Terlayani (Selesai)</span>
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-value" id="stat-selesai">33</div>
+              <div class="metric-footer">
+                <span class="text-green">Sinkron SATUSEHAT: 100%</span>
+              </div>
+            </div>
+
+            <div class="metric-card card-indigo">
+              <div class="metric-header">
+                <span class="metric-title">Kategori Pembayaran</span>
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-split">
+                <div><span>BPJS:</span> <strong>35 (83%)</strong></div>
+                <div><span>Umum:</span> <strong>7 (17%)</strong></div>
+              </div>
+              <div class="metric-footer">
+                <span>Klaim P-Care otomatis aktif</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Queue Board & Calling Unit -->
+          <div class="dashboard-grid-2">
+
+            <!-- Live Active Queue Caller -->
+            <div class="panel-card queue-display-card">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Papan Pemanggilan Antrean Aktif</h3>
+                  <p class="panel-sub">Pengumuman audio ruang tunggu dan display televisi antrean</p>
+                </div>
+                <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
+              </div>
+
+              <div class="queue-board-grid">
+                <div class="queue-box current-box">
+                  <span class="queue-box-label">SEDANG DIPANGGIL</span>
+                  <div class="queue-number-huge" id="current-called-nomor">A-014</div>
+                  <div class="queue-patient-name" id="current-called-nama">Ny. Siti Aminah</div>
+                  <div class="queue-target-poli" id="current-called-poli">POLI UMUM &bull; Ruang 1</div>
+                  <div class="queue-actions">
+                    <button class="btn btn-call" id="btn-recall-current">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                      </svg>
+                      Panggil Ulang
+                    </button>
+                    <button class="btn btn-success" id="btn-next-queue">
+                      Panggil Berikutnya &rarr;
+                    </button>
+                  </div>
+                </div>
+
+                <div class="queue-counters-list">
+                  <div class="counter-item">
+                    <div class="counter-poli">Poli Umum</div>
+                    <div class="counter-num" id="counter-umum">A-014</div>
+                    <span class="counter-status in-call">Diperiksa</span>
+                  </div>
+                  <div class="counter-item">
+                    <div class="counter-poli">Poli Gigi & Mulut</div>
+                    <div class="counter-num" id="counter-gigi">B-004</div>
+                    <span class="counter-status waiting">Menunggu</span>
+                  </div>
+                  <div class="counter-item">
+                    <div class="counter-poli">Poli KIA & KB</div>
+                    <div class="counter-num" id="counter-kia">C-008</div>
+                    <span class="counter-status in-call">Diperiksa</span>
+                  </div>
+                  <div class="counter-item">
+                    <div class="counter-poli">Farmasi / Apotek</div>
+                    <div class="counter-num" id="counter-farmasi">F-022</div>
+                    <span class="counter-status ready">Obat Siap</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monitoring Table of Today's Patients -->
+            <div class="panel-card">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Daftar Pasien Kunjungan Hari Ini</h3>
+                  <p class="panel-sub">Pelacakan progress alur dari loket ke farmasi</p>
+                </div>
+                <div class="filter-group">
+                  <input type="text" id="filter-queue-search" class="input-search"
+                    placeholder="Cari nama / NIK / No.RM...">
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table-modern" id="table-dashboard-queue">
+                  <thead>
+                    <tr>
+                      <th>No. Antrean</th>
+                      <th>No. RM & Nama Pasien</th>
+                      <th>Poli Tujuan</th>
+                      <th>Penjamin</th>
+                      <th>Status Alur</th>
+                      <th>Aksi Cepat</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-dashboard-patients">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: LOKET PENDAFTARAN PASIEN -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-pendaftaran">
+          <div class="layout-split-form">
+            <!-- Form Registrasi -->
+            <div class="panel-card">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Registrasi Pasien & Loket Pendaftaran</h3>
+                  <p class="panel-sub">Pendaftaran pasien baru atau verifikasi pasien lama (BPJS / Umum)</p>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-quick-fill-pasien">
+                  Contoh Data Cepat
+                </button>
+              </div>
+
+              <form id="form-pendaftaran" class="form-grid">
+                <div class="form-group span-2">
+                  <label for="reg-nik">NIK Kependudukan (16 Digit) <span class="required">*</span></label>
+                  <div class="input-with-button">
+                    <input type="text" id="reg-nik" maxlength="16" placeholder="3201xxxxxxxxxxxx" required>
+                    <button type="button" class="btn btn-info" id="btn-cek-dukcapil">
+                      Cek Dukcapil
+                    </button>
+                  </div>
+                  <span class="form-hint">Data NIK tervalidasi otomatis dengan KTP-el Kemenkes</span>
+                </div>
+
+                <div class="form-group span-2">
+                  <label for="reg-nama">Nama Lengkap Pasien <span class="required">*</span></label>
+                  <input type="text" id="reg-nama" placeholder="Sesuai KTP / KK" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-tgllahir">Tanggal Lahir <span class="required">*</span></label>
+                  <input type="date" id="reg-tgllahir" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-gender">Jenis Kelamin <span class="required">*</span></label>
+                  <select id="reg-gender" required>
+                    <option value="">Pilih...</option>
+                    <option value="L">Laki-Laki (L)</option>
+                    <option value="P">Perempuan (P)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-telepon">Nomor WhatsApp / HP</label>
+                  <input type="tel" id="reg-telepon" placeholder="08xxxxxxxxxx">
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-penjamin">Jenis Penjamin <span class="required">*</span></label>
+                  <select id="reg-penjamin" required>
+                    <option value="BPJS PBI">BPJS Kesehatan (PBI)</option>
+                    <option value="BPJS Non-PBI">BPJS Kesehatan (Mandiri/PPU)</option>
+                    <option value="Umum">Umum / Mandiri</option>
+                    <option value="Asuransi Lain">Asuransi Swasta Lain</option>
+                  </select>
+                </div>
+
+                <div class="form-group span-2" id="group-nobpjs">
+                  <label for="reg-nobpjs">Nomor Kartu BPJS (13 Digit)</label>
+                  <div class="input-with-button">
+                    <input type="text" id="reg-nobpjs" maxlength="13" placeholder="0001234567890">
+                    <button type="button" class="btn btn-primary" id="btn-cek-bpjs">
+                      Cek P-Care
+                    </button>
+                  </div>
+                  <div id="bpjs-eligibility-alert" class="alert-box success hidden">
+                    <strong>P-Care Aktif:</strong> Terdaftar di Faskes Puskesmas Sehat Mandiri. Premi Lunas.
+                  </div>
+                </div>
+
+                <div class="form-group span-2">
+                  <label for="reg-alamat">Alamat Domisili Lengkap</label>
+                  <textarea id="reg-alamat" rows="2" placeholder="Jl. Melati RT 02/04 Kel. Sukamaju..."></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-poli">Poli Tujuan Kunjungan <span class="required">*</span></label>
+                  <select id="reg-poli" required>
+                    <option value="Poli Umum">Poli Umum</option>
+                    <option value="Poli Gigi">Poli Gigi & Mulut</option>
+                    <option value="Poli KIA/KB">Poli KIA, KB & Imunisasi</option>
+                    <option value="Poli Lansia">Poli Lansia & Posbindu</option>
+                    <option value="Poli TB/Kusta">Poli TB Paru / Kusta</option>
+                    <option value="UGD">UGD (Gawat Darurat 24 Jam)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="reg-keluhan-awal">Keluhan Awal Pasien</label>
+                  <input type="text" id="reg-keluhan-awal" placeholder="Contoh: Demam 3 hari, batuk pilek">
+                </div>
+
+                <div class="form-actions span-2">
+                  <button type="reset" class="btn btn-secondary">Reset Form</button>
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    Daftarkan & Cetak Karcis Antrean
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Panel Tiket & History Kunjungan Terakhir -->
+            <div class="panel-column">
+              <!-- Live Ticket Preview Card -->
+              <div class="panel-card ticket-card">
+                <div class="panel-header">
+                  <h4 class="panel-title">Preview Karcis Antrean</h4>
+                  <span class="badge-tag">Cetak Thermal 58mm</span>
+                </div>
+
+                <div class="thermal-receipt" id="thermal-preview">
+                  <div class="receipt-header">
+                    <h4>PUSKESMAS SEHAT MANDIRI</h4>
+                    <p>Jl. Kesehatan No. 42, Sukamaju</p>
+                    <hr>
+                  </div>
+                  <div class="receipt-body">
+                    <p class="receipt-type">NOMOR ANTREAN POLI</p>
+                    <div class="receipt-number" id="preview-ticket-num">A-015</div>
+                    <div class="receipt-poli" id="preview-ticket-poli">POLI UMUM</div>
+                    <div class="receipt-info">
+                      <div><span>Pasien:</span> <strong id="preview-ticket-nama">-</strong></div>
+                      <div><span>No. RM:</span> <strong id="preview-ticket-norm">-</strong></div>
+                      <div><span>Waktu:</span> <strong id="preview-ticket-time">-</strong></div>
+                    </div>
+                  </div>
+                  <div class="receipt-footer">
+                    <p>Simpan karcis ini hingga pemeriksaan selesai.</p>
+                    <p>Terima kasih atas kunjungan Anda.</p>
+                  </div>
+                </div>
+
+                <button class="btn btn-success btn-block" id="btn-print-ticket">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9" />
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                    <rect x="6" y="14" width="12" height="8" />
+                  </svg>
+                  Cetak Karcis Fisik
+                </button>
+              </div>
+
+              <!-- Quick Info Card -->
+              <div class="panel-card info-card">
+                <h4>Pedoman Bridging SATUSEHAT & P-Care</h4>
+                <ul class="clean-list">
+                  <li>NIK 16 digit wajib valid untuk menghasilkan <strong>IHS Number Pasien (SATUSEHAT ID)</strong>.
+                  </li>
+                  <li>Untuk pasien BPJS, nomor rujukan faskes tingkat 1 terbit otomatis via P-Care.</li>
+                  <li>Data pasien tersimpan otomatis di database lokal & sinkron ke cloud.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: TRIASE & PEMERIKSAAN AWAL (TTV) -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-triase">
+          <div class="split-layout-triase">
+
+            <!-- Antrean Pasien Menunggu TTV -->
+            <div class="panel-card list-sidebar-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Menunggu Skrining & TTV</h3>
+                  <p class="panel-sub">Pilih pasien untuk mengisi tanda vital</p>
+                </div>
+              </div>
+
+              <div class="patient-select-list" id="triase-patient-list">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Form Pengisian TTV & Skrining -->
+            <div class="panel-card detail-main-panel">
+              <div id="triase-empty-state" class="empty-state">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+                <h3>Pilih Pasien di Sebelah Kiri</h3>
+                <p>Klik salah satu nama pasien pada daftar antrean untuk mulai mengisi Asuhan Keperawatan dan
+                  Tanda-Tanda Vital.</p>
+              </div>
+
+              <div id="triase-form-container" class="hidden">
+                <div class="patient-banner">
+                  <div class="banner-avatar">P</div>
+                  <div class="banner-details">
+                    <h3 id="ttv-patient-name">Ny. Siti Aminah (48 Thn)</h3>
+                    <div class="banner-meta">
+                      <span>No. RM: <strong id="ttv-patient-norm">RM-2026-0042</strong></span>
+                      <span>NIK: <strong id="ttv-patient-nik">3201123456780001</strong></span>
+                      <span>Poli: <span class="badge-pill pill-primary" id="ttv-patient-poli">Poli Umum</span></span>
+                      <span>Penjamin: <span class="badge-tag" id="ttv-patient-penjamin">BPJS PBI</span></span>
+                    </div>
+                  </div>
+                </div>
+
+                <form id="form-ttv" class="form-grid-ttv">
+                  <div class="section-title span-all">
+                    <h4>1. Tanda-Tanda Vital (Vital Signs)</h4>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-tensi-sistol">Tekanan Darah (Sistol / Diastol) <span
+                        class="required">*</span></label>
+                    <div class="input-duo">
+                      <input type="number" id="ttv-sistol" placeholder="Sistol (120)" required>
+                      <span class="slash">/</span>
+                      <input type="number" id="ttv-diastol" placeholder="Diastol (80)" required>
+                      <span class="unit">mmHg</span>
+                    </div>
+                    <span id="ttv-tensi-kategori" class="kategori-badge normal">Normal (< 120/80)</span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-nadi">Denyut Nadi (Heart Rate) <span class="required">*</span></label>
+                    <div class="input-unit">
+                      <input type="number" id="ttv-nadi" placeholder="80" required>
+                      <span class="unit">bpm</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-suhu">Suhu Tubuh <span class="required">*</span></label>
+                    <div class="input-unit">
+                      <input type="number" step="0.1" id="ttv-suhu" placeholder="36.5" required>
+                      <span class="unit">&deg;C</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-rr">Laju Respirasi (RR)</label>
+                    <div class="input-unit">
+                      <input type="number" id="ttv-rr" placeholder="18">
+                      <span class="unit">x/mnt</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-spo2">Saturasi Oksigen (SpO2)</label>
+                    <div class="input-unit">
+                      <input type="number" id="ttv-spo2" placeholder="98">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-nyeri">Skala Nyeri (NRS 0 - 10)</label>
+                    <select id="ttv-nyeri">
+                      <option value="0">0 - Tidak Nyeri</option>
+                      <option value="1">1 - Nyeri Sangat Ringan</option>
+                      <option value="2">2 - Nyeri Ringan</option>
+                      <option value="4">4 - Nyeri Sedang</option>
+                      <option value="6">6 - Nyeri Mengganggu</option>
+                      <option value="8">8 - Nyeri Berat</option>
+                      <option value="10">10 - Nyeri Tak Tertahankan</option>
+                    </select>
+                  </div>
+
+                  <div class="section-title span-all">
+                    <h4>2. Antropometri & Kalkulator IMT Otomatis</h4>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-tb">Tinggi Badan (TB)</label>
+                    <div class="input-unit">
+                      <input type="number" id="ttv-tb" placeholder="160">
+                      <span class="unit">cm</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-bb">Berat Badan (BB)</label>
+                    <div class="input-unit">
+                      <input type="number" step="0.1" id="ttv-bb" placeholder="60">
+                      <span class="unit">kg</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ttv-lingkar-perut">Lingkar Perut</label>
+                    <div class="input-unit">
+                      <input type="number" id="ttv-lingkar-perut" placeholder="78">
+                      <span class="unit">cm</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group imt-card-display">
+                    <label>Indeks Massa Tubuh (IMT)</label>
+                    <div class="imt-result-box">
+                      <span class="imt-score" id="ttv-imt-score">23.4</span>
+                      <span class="imt-status normal" id="ttv-imt-status">Normal (Ideal)</span>
+                    </div>
+                  </div>
+
+                  <div class="section-title span-all">
+                    <h4>3. Skrining Alergi & Risiko Klinis</h4>
+                  </div>
+
+                  <div class="form-group span-all">
+                    <label for="ttv-alergi">Riwayat Alergi Obat / Makanan</label>
+                    <input type="text" id="ttv-alergi"
+                      placeholder="Contoh: Alergi Amoxicillin, Udang (Kosongkan bila Tidak Ada)">
+                  </div>
+
+                  <div class="form-group span-all">
+                    <label for="ttv-keluhan-perawat">Catatan Keperawatan / Anamnesis Awal Perawat</label>
+                    <textarea id="ttv-catatan-perawat" rows="2"
+                      placeholder="Pasien mengeluh pusing sejak 2 hari, leher tegang..."></textarea>
+                  </div>
+
+                  <div class="form-actions span-all">
+                    <button type="submit" class="btn btn-primary btn-lg" id="btn-save-ttv">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Simpan TTV & Kirim Pasien ke Dokter
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 4: REKAM MEDIS ELEKTRONIK (RUANG DOKTER) -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-rme-dokter">
+          <div class="split-layout-doctor">
+
+            <!-- Antrean Pasien Poli Dokter -->
+            <div class="panel-card doctor-queue-panel">
+              <div class="panel-header">
+                <div>
+                  <h4 class="panel-title">Antrean Poli Aktif</h4>
+                  <span class="panel-sub" id="doctor-current-poliname">Poli Umum</span>
+                </div>
+                <button class="btn btn-icon btn-sm" id="btn-refresh-doctor-queue" title="Segarkan Antrean">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10" />
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="doctor-patient-list" id="doctor-queue-list">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- EMR Editor Workspace -->
+            <div class="panel-card doctor-emr-panel">
+              <div id="doctor-empty-state" class="empty-state">
+                <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                <h3>Ruang Konsultasi Dokter</h3>
+                <p>Silakan pilih pasien dari daftar antrean sebelah kiri untuk membuka Rekam Medis Elektronik (SOAP).
+                </p>
+              </div>
+
+              <div id="doctor-emr-workspace" class="hidden">
+                <!-- Header Pasien Terpilih & Quick TTV strip -->
+                <div class="patient-master-banner">
+                  <div class="patient-meta-left">
+                    <div class="badge-num" id="emr-patient-nomor">A-014</div>
+                    <div>
+                      <h3 class="patient-fullname" id="emr-patient-nama">Ny. Siti Aminah</h3>
+                      <div class="patient-identifiers">
+                        <span>No. RM: <strong id="emr-patient-norm">RM-2026-0042</strong></span>
+                        <span>NIK: <strong id="emr-patient-nik">3201123456780001</strong></span>
+                        <span>Usia: <strong id="emr-patient-usia">48 Thn (P)</strong></span>
+                        <span class="badge-tag bpjs" id="emr-patient-penjamin">BPJS PBI</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="patient-ttv-strip">
+                    <div class="ttv-chip">
+                      <span class="chip-lbl">TD</span>
+                      <strong class="chip-val" id="chip-td">145/95</strong>
+                    </div>
+                    <div class="ttv-chip">
+                      <span class="chip-lbl">Nadi</span>
+                      <strong class="chip-val" id="chip-nadi">84 bpm</strong>
+                    </div>
+                    <div class="ttv-chip">
+                      <span class="chip-lbl">Suhu</span>
+                      <strong class="chip-val" id="chip-suhu">36.8 &deg;C</strong>
+                    </div>
+                    <div class="ttv-chip">
+                      <span class="chip-lbl">IMT</span>
+                      <strong class="chip-val" id="chip-imt">23.4</strong>
+                    </div>
+                    <div class="ttv-chip alert-chip" id="chip-alergi-wrapper">
+                      <span class="chip-lbl">Alergi</span>
+                      <strong class="chip-val text-red" id="chip-alergi">Amoxicillin</strong>
+                    </div>
+                  </div>
+
+                  <div class="patient-banner-actions">
+                    <button class="btn btn-secondary btn-sm" id="btn-lihat-riwayat-rm">
+                      Riwayat Medis Lalu
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="btn-panggil-pasien-suara">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                      </svg>
+                      Panggil Suara
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Tabbed EMR Sections -->
+                <div class="emr-tabs">
+                  <button class="emr-tab active" data-tab="tab-soap">SOAP Klinis (Utama)</button>
+                  <button class="emr-tab" data-tab="tab-resep">E-Resep Obat</button>
+                  <button class="emr-tab" data-tab="tab-lab-order">Permintaan Lab</button>
+                  <button class="emr-tab" data-tab="tab-odontogram" id="tab-btn-odontogram">Odontogram (Poli
+                    Gigi)</button>
+                  <button class="emr-tab" data-tab="tab-rujukan">Rujukan P-Care</button>
+                </div>
+
+                <!-- TAB 1: FORM SOAP -->
+                <div class="tab-content active" id="tab-soap">
+                  <!-- Quick Templates / Macros -->
+                  <div class="quick-template-bar">
+                    <span class="template-label">Template Cepat:</span>
+                    <button type="button" class="btn-chip" data-template="ispa">ISPA / Faringitis</button>
+                    <button type="button" class="btn-chip" data-template="hipertensi">Hipertensi Primer</button>
+                    <button type="button" class="btn-chip" data-template="dm2">Diabetes Melitus Tipe 2</button>
+                    <button type="button" class="btn-chip" data-template="dispepsia">Sindrom Dispepsia / Maag</button>
+                    <button type="button" class="btn-chip" data-template="sehat">Surat Keterangan Sehat</button>
+                  </div>
+
+                  <form id="form-soap" class="soap-form-grid">
+                    <!-- S: SUBJEKTIF -->
+                    <div class="soap-box box-s">
+                      <div class="soap-badge">S</div>
+                      <div class="soap-inner">
+                        <label>Subjektif (Anamnesis Keluhan & Riwayat)</label>
+                        <textarea id="soap-s" rows="3"
+                          placeholder="Keluhan utama, riwayat penyakit sekarang, lama keluhan..." required></textarea>
+                      </div>
+                    </div>
+
+                    <!-- O: OBJEKTIF -->
+                    <div class="soap-box box-o">
+                      <div class="soap-badge">O</div>
+                      <div class="soap-inner">
+                        <label>Objektif (Pemeriksaan Fisik Terarah)</label>
+                        <textarea id="soap-o" rows="3"
+                          placeholder="Keadaan umum: Compos mentis, Kepala/Leher, Thorax, Abdomen, Ekstremitas..."
+                          required></textarea>
+                      </div>
+                    </div>
+
+                    <!-- A: ASESMEN / DIAGNOSIS -->
+                    <div class="soap-box box-a span-2">
+                      <div class="soap-badge">A</div>
+                      <div class="soap-inner">
+                        <label>Asesmen & Diagnosis ICD-10 <span class="required">*</span></label>
+                        <div class="diagnosis-input-row">
+                          <div class="autocomplete-wrapper">
+                            <input type="text" id="soap-icd10-input"
+                              placeholder="Ketik kode ICD-10 atau nama penyakit (cth: I10, Hipertensi, ISPA, J06.9)...">
+                            <div class="autocomplete-dropdown hidden" id="icd10-dropdown"></div>
+                          </div>
+                          <button type="button" class="btn btn-secondary" id="btn-add-diagnosis">+ Tambah
+                            Diagnosis</button>
+                        </div>
+
+                        <!-- Active Diagnoses List -->
+                        <div class="diagnoses-tags-list" id="diagnoses-list">
+                          <!-- Populated via JS -->
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- P: PLAN / TINDAKAN -->
+                    <div class="soap-box box-p span-2">
+                      <div class="soap-badge">P</div>
+                      <div class="soap-inner">
+                        <label>Plan & Tata Laksana (Tindakan ICD-9-CM, Edukasi Pasien)</label>
+                        <textarea id="soap-p" rows="2"
+                          placeholder="Edukasi diet rendah garam, istirahat cukup, kontrol ulang 1 minggu..."></textarea>
+                      </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="soap-footer-actions span-2">
+                      <div class="tte-badge-info">
+                        <span class="tte-icon">🛡️</span>
+                        <span>TTE Digital Dokter: <strong>dr. Aulia Rahma, Sp.KKLP (Tersertifikasi BSrE)</strong></span>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" id="btn-print-resume-medis">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9" />
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                            <rect x="6" y="14" width="12" height="8" />
+                          </svg>
+                          Cetak Resume Medis
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg" id="btn-save-soap-finish">
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                          </svg>
+                          Simpan RME & Selesaikan Konsultasi
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- TAB 2: E-RESEP OBAT -->
+                <div class="tab-content" id="tab-resep">
+                  <div class="panel-header">
+                    <div>
+                      <h4>Resep Elektronik (Kirim Langsung ke Farmasi)</h4>
+                      <p class="panel-sub">Obat akan terhubung langsung dengan ketersediaan stok Puskesmas</p>
+                    </div>
+                  </div>
+
+                  <!-- Resep item builder -->
+                  <div class="prescription-builder">
+                    <div class="presc-row">
+                      <div class="form-group flex-2">
+                        <label>Nama Obat (Formularium Puskesmas)</label>
+                        <select id="presc-nama-obat">
+                          <option value="">Pilih Obat...</option>
+                          <option value="Amlodipine 5 mg (Tab)">Amlodipine 5 mg (Tab) - Stok: 450</option>
+                          <option value="Amlodipine 10 mg (Tab)">Amlodipine 10 mg (Tab) - Stok: 320</option>
+                          <option value="Paracetamol 500 mg (Tab)">Paracetamol 500 mg (Tab) - Stok: 1200</option>
+                          <option value="Amoxicillin 500 mg (Kaps)">Amoxicillin 500 mg (Kaps) - [PERINGATAN ALERGI] -
+                            Stok: 500</option>
+                          <option value="Metformin 500 mg (Tab)">Metformin 500 mg (Tab) - Stok: 600</option>
+                          <option value="Antasida Doen (Tab Kunyah)">Antasida Doen (Tab Kunyah) - Stok: 850</option>
+                          <option value="Cetirizine 10 mg (Tab)">Cetirizine 10 mg (Tab) - Stok: 400</option>
+                          <option value="Salbutamol 2 mg (Tab)">Salbutamol 2 mg (Tab) - Stok: 250</option>
+                          <option value="Vitamin B Kompleks (Tab)">Vitamin B Kompleks (Tab) - Stok: 900</option>
+                        </select>
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>Jumlah</label>
+                        <input type="number" id="presc-jumlah" value="10" min="1">
+                      </div>
+                      <div class="form-group flex-2">
+                        <label>Aturan Pakai (Signa)</label>
+                        <select id="presc-signa">
+                          <option value="1 x 1 tab pagi sesudah makan">1 x 1 tab pagi sesudah makan</option>
+                          <option value="1 x 1 tab malam sebelum tidur">1 x 1 tab malam sebelum tidur</option>
+                          <option value="3 x 1 tab sesudah makan (bila demam/nyeri)">3 x 1 tab sesudah makan (bila
+                            nyeri)</option>
+                          <option value="3 x 1 tab 30 mnt sebelum makan">3 x 1 tab 30 mnt sebelum makan</option>
+                          <option value="2 x 1 tab sesudah makan">2 x 1 tab sesudah makan</option>
+                        </select>
+                      </div>
+                      <div class="form-group flex-1 align-end">
+                        <button type="button" class="btn btn-primary" id="btn-tambah-obat">+ Masukkan</button>
+                      </div>
+                    </div>
+
+                    <!-- Prescriptions Table -->
+                    <table class="table-modern mt-3" id="table-resep-items">
+                      <thead>
+                        <tr>
+                          <th>Nama Obat & Sediaan</th>
+                          <th>Jumlah</th>
+                          <th>Signa / Aturan Minum</th>
+                          <th>Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbody-resep-items">
+                        <!-- Populated via JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- TAB 3: ORDER LAB -->
+                <div class="tab-content" id="tab-lab-order">
+                  <div class="panel-header">
+                    <div>
+                      <h4>Permintaan Pemeriksaan Laboratorium Sederhana</h4>
+                      <p class="panel-sub">Centang pemeriksaan yang dibutuhkan, hasil akan terhubung langsung</p>
+                    </div>
+                  </div>
+
+                  <div class="lab-order-grid">
+                    <label class="lab-check-card">
+                      <input type="checkbox" name="lab_item" value="Gula Darah Sewaktu (GDS)">
+                      <div class="lab-check-info">
+                        <strong>Gula Darah Sewaktu (GDS)</strong>
+                        <span>Skrining Glukosa Cepat</span>
+                      </div>
+                    </label>
+                    <label class="lab-check-card">
+                      <input type="checkbox" name="lab_item" value="Kolesterol Total">
+                      <div class="lab-check-info">
+                        <strong>Kolesterol Total</strong>
+                        <span>Profil Lipid Darah</span>
+                      </div>
+                    </label>
+                    <label class="lab-check-card">
+                      <input type="checkbox" name="lab_item" value="Asam Urat (Uric Acid)">
+                      <div class="lab-check-info">
+                        <strong>Asam Urat</strong>
+                        <span>Tes Sendi & Purin</span>
+                      </div>
+                    </label>
+                    <label class="lab-check-card">
+                      <input type="checkbox" name="lab_item" value="Hemoglobin (Hb)">
+                      <div class="lab-check-info">
+                        <strong>Hemoglobin (Hb)</strong>
+                        <span>Skrining Anemia / Ibu Hamil</span>
+                      </div>
+                    </label>
+                    <label class="lab-check-card">
+                      <input type="checkbox" name="lab_item" value="Urin Rutin 3 Parameter">
+                      <div class="lab-check-info">
+                        <strong>Urin Rutin (Stik)</strong>
+                        <span>Glukosa, Protein, pH</span>
+                      </div>
+                    </label>
+                    <label class="lab-check-card">
+                      <input type="checkbox" name="lab_item" value="BTA Sputum (TB Paru)">
+                      <div class="lab-check-info">
+                        <strong>BTA Dahak / TCM</strong>
+                        <span>Pemeriksaan Tuberkulosis</span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div class="mt-4">
+                    <button type="button" class="btn btn-primary" id="btn-kirim-lab-order">
+                      Kirim Permintaan ke Laboratorium
+                    </button>
+                  </div>
+                </div>
+
+                <!-- TAB 4: ODONTOGRAM (POLI GIGI) -->
+                <div class="tab-content" id="tab-odontogram">
+                  <div class="panel-header">
+                    <div>
+                      <h4>Diagram Odontogram Digital (Standar FDI Dua Digit)</h4>
+                      <p class="panel-sub">Klik nomor gigi untuk menandai kondisi (Karies, Tambalan, Hilang, Goyang)</p>
+                    </div>
+                  </div>
+
+                  <div class="odontogram-wrapper">
+                    <div class="odontogram-legend">
+                      <span class="legend-item"><span class="dot-color sound"></span> Sehat (Normal)</span>
+                      <span class="legend-item"><span class="dot-color car"></span> Caries (Karies)</span>
+                      <span class="legend-item"><span class="dot-color amf"></span> Restorasi (Tambalan)</span>
+                      <span class="legend-item"><span class="dot-color mis"></span> Missing (Hilang/Dicabut)</span>
+                    </div>
+
+                    <!-- Rahang Atas (Maxilla) -->
+                    <div class="arch-label">RAHANG ATAS (MAXILLA)</div>
+                    <div class="teeth-row" id="upper-teeth">
+                      <!-- 18 - 11, 21 - 28 -->
+                    </div>
+
+                    <!-- Rahang Bawah (Mandibula) -->
+                    <div class="arch-label mt-3">RAHANG BAWAH (MANDIBULA)</div>
+                    <div class="teeth-row" id="lower-teeth">
+                      <!-- 48 - 41, 31 - 38 -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TAB 5: RUJUKAN P-CARE -->
+                <div class="tab-content" id="tab-rujukan">
+                  <div class="panel-header">
+                    <div>
+                      <h4>Surat Rujukan Eksternal (BPJS P-Care Bridging)</h4>
+                      <p class="panel-sub">Rujukan berjenjang ke Faskes Rujukan Tingkat Lanjutan (FKRTL / Rumah Sakit)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="form-grid">
+                    <div class="form-group span-2">
+                      <label>Rumah Sakit Tujuan (FKRTL)</label>
+                      <select id="rujuk-rs">
+                        <option value="RSUD Sukamaju (Tipe B)">RSUD Sukamaju (Tipe B) - Kuota Hari Ini: 14</option>
+                        <option value="RS Bhayangkara (Tipe C)">RS Bhayangkara (Tipe C) - Kuota Hari Ini: 8</option>
+                        <option value="RS Mata Sejahtera (Khusus)">RS Khusus Mata Sejahtera - Kuota: 12</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Poli Spesialis Tujuan</label>
+                      <select id="rujuk-spesialis">
+                        <option value="Penyakit Dalam (Sp.PD)">Penyakit Dalam (Sp.PD)</option>
+                        <option value="Jantung & Pembuluh Darah (Sp.JP)">Jantung & Pembuluh Darah (Sp.JP)</option>
+                        <option value="Mata (Sp.M)">Mata (Sp.M)</option>
+                        <option value="Saraf (Sp.N)">Saraf (Sp.N)</option>
+                        <option value="Kandungan & Kebidanan (Sp.OG)">Kandungan & Kebidanan (Sp.OG)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Tipe Rujukan</label>
+                      <select id="rujuk-tipe">
+                        <option value="Vertikal Penuh">Vertikal Penuh (Kasus Kronis / Komplikasi)</option>
+                        <option value="Rujuk Balik (PRB)">Program Rujuk Balik (PRB)</option>
+                      </select>
+                    </div>
+                    <div class="form-group span-2">
+                      <label>Alasan / Ringkasan Rujukan Klinis</label>
+                      <textarea id="rujuk-alasan" rows="2"
+                        placeholder="Hipertensi urgensi grade 2 refrakter obat lini pertama..."></textarea>
+                    </div>
+                    <div class="form-actions span-2">
+                      <button type="button" class="btn btn-warning" id="btn-generate-pcare-rujukan">
+                        Terbitkan Rujukan P-Care & Cetak Surat Rujukan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 5: APOTEK & E-RESEP (FARMASI) -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-farmasi">
+          <div class="metrics-grid">
+            <div class="metric-card card-teal">
+              <span class="metric-title">Resep Masuk Hari Ini</span>
+              <div class="metric-value" id="stat-resep-masuk">28</div>
+            </div>
+            <div class="metric-card card-blue">
+              <span class="metric-title">Menunggu Diracik / Disiapkan</span>
+              <div class="metric-value text-amber" id="stat-resep-antri">3</div>
+            </div>
+            <div class="metric-card card-green">
+              <span class="metric-title">Obat Selesai Diserahkan</span>
+              <div class="metric-value text-green" id="stat-resep-selesai">25</div>
+            </div>
+            <div class="metric-card card-indigo">
+              <span class="metric-title">Status Stok LPLPO</span>
+              <div class="metric-value">Aman</div>
+              <span class="metric-sub">0 Item Out of Stock</span>
+            </div>
+          </div>
+
+          <div class="panel-card mt-4">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Antrean E-Resep Masuk dari Poli</h3>
+                <p class="panel-sub">Lakukan telaah resep, penyiapan obat, dan cetak etiket aturan minum</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table-modern" id="table-farmasi-queue">
+                <thead>
+                  <tr>
+                    <th>No. Resep</th>
+                    <th>No. RM & Nama Pasien</th>
+                    <th>Poli & Dokter Pengirim</th>
+                    <th>Daftar Obat</th>
+                    <th>Status Telaah</th>
+                    <th>Aksi Farmasi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-farmasi-list">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 6: LABORATORIUM -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-lab">
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Antrean Permintaan Pemeriksaan Laboratorium</h3>
+                <p class="panel-sub">Input hasil pemeriksaan analis lab secara langsung ke RME pasien</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table-modern" id="table-lab-queue">
+                <thead>
+                  <tr>
+                    <th>ID Order Lab</th>
+                    <th>Nama Pasien & No. RM</th>
+                    <th>Poli Perujuk</th>
+                    <th>Item Tes</th>
+                    <th>Nilai Rujukan & Hasil</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-lab-list">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 7: SATUSEHAT GATEWAY (INTEROPERABILITAS FHIR) -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-satusehat">
+          <div class="satusehat-header-banner">
+            <div class="satusehat-logo-badge">
+              <span class="ss-badge">SATUSEHAT</span>
+              <span class="ss-sub">Kementerian Kesehatan RI &bull; HL7 FHIR R4</span>
+            </div>
+            <div class="ss-sync-actions">
+              <button class="btn btn-success" id="btn-sync-all-satusehat">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+                Sinkronisasi Semua Data Hari Ini
+              </button>
+            </div>
+          </div>
+
+          <div class="satusehat-grid">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h4 class="panel-title">Daftar Bundel Rekam Medis (FHIR Resources)</h4>
+                <span class="badge-tag">Encounter &bull; Condition &bull; Observation</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table-modern" id="table-satusehat-sync">
+                  <thead>
+                    <tr>
+                      <th>Patient IHS</th>
+                      <th>Pasien</th>
+                      <th>Resource Type</th>
+                      <th>Status Kirim</th>
+                      <th>Response Code</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-satusehat-list">
+                    <!-- Injected via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- JSON Payload Viewer -->
+            <div class="panel-card">
+              <div class="panel-header">
+                <h4 class="panel-title">Pratinjau JSON Payload FHIR Terakhir</h4>
+                <span class="badge-tag mono">application/fhir+json</span>
+              </div>
+              <pre class="json-code-box" id="json-viewer">{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:encounter-01",
+      "resource": {
+        "resourceType": "Encounter",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "subject": {
+          "reference": "Patient/100000042456",
+          "display": "Ny. Siti Aminah"
+        }
+      }
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 8: LAPORAN LB1 & SURVEILANS DINAS KESEHATAN -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-laporan">
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Laporan Bulanan Kesakitan (LB1 - 10 Besar Penyakit)</h3>
+                <p class="panel-sub">Laporan otomatis surveilans epidemiologi Puskesmas ke Dinas Kesehatan</p>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-secondary" id="btn-print-laporan">
+                  Cetak Format Dinkes (PDF)
+                </button>
+                <button class="btn btn-success" id="btn-export-excel">
+                  Ekspor Excel (.xlsx)
+                </button>
+              </div>
+            </div>
+
+            <!-- 10 Besar Penyakit Bar chart visual representation -->
+            <div class="chart-container">
+              <div class="chart-header">
+                <h4>Distribusi 10 Kasus Terbanyak (Bulan Ini)</h4>
+              </div>
+              <div class="bar-chart-list" id="bar-chart-lb1">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <div class="table-responsive mt-4">
+              <table class="table-modern" id="table-lb1-full">
+                <thead>
+                  <tr>
+                    <th>Ranking</th>
+                    <th>Kode ICD-10</th>
+                    <th>Nama Penyakit (Diagnosis)</th>
+                    <th>Kasus Baru</th>
+                    <th>Kasus Lama</th>
+                    <th>Total Kunjungan</th>
+                    <th>Persentase</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-lb1-data">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CETAK RESUME MEDIS PASIEN -->
+  <!-- ============================================== -->
+  <div class="modal-overlay hidden" id="modal-resume-medis">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <h3>Ringkasan Resume Medis Rawat Jalan</h3>
+        <button class="btn-close" id="btn-close-resume">&times;</button>
+      </div>
+      <div class="modal-body" id="print-resume-content">
+        <div class="kemenkes-print-header">
+          <div class="gov-logo">PUSKESMAS</div>
+          <div class="gov-text">
+            <h3>PEMERINTAH KABUPATEN BOGOR &bull; DINAS KESEHATAN</h3>
+            <h2>PUSKESMAS SEHAT MANDIRI</h2>
+            <p>Jl. Raya Kesehatan No. 42, Telp: (021) 87654321, Email: puskesmas@sehat.go.id</p>
+          </div>
+        </div>
+        <hr class="double-line">
+        <h4 class="text-center doc-title">RESUME MEDIS RAWAT JALAN ELEKTRONIK</h4>
+
+        <table class="print-table-info">
+          <tr>
+            <td width="20%"><strong>Nama Pasien</strong></td>
+            <td width="30%">: <span id="print-nama">Ny. Siti Aminah</span></td>
+            <td width="20%"><strong>No. Rekam Medis</strong></td>
+            <td width="30%">: <span id="print-norm">RM-2026-0042</span></td>
+          </tr>
+          <tr>
+            <td><strong>NIK KTP</strong></td>
+            <td>: <span id="print-nik">3201123456780001</span></td>
+            <td><strong>Tanggal Layanan</strong></td>
+            <td>: <span id="print-tgl">06 Oktober 2026</span></td>
+          </tr>
+          <tr>
+            <td><strong>Jenis Kelamin / Usia</strong></td>
+            <td>: <span id="print-gender-usia">Perempuan / 48 Thn</span></td>
+            <td><strong>Penjamin / BPJS</strong></td>
+            <td>: <span id="print-penjamin">BPJS Kesehatan (PBI)</span></td>
+          </tr>
+        </table>
+
+        <div class="print-soap-section">
+          <h4>HASIL PEMERIKSAAN KLINIS:</h4>
+          <p><strong>Tanda Vital:</strong> TD: <span id="print-td">145/95 mmHg</span>, Nadi: <span id="print-nadi">84
+              bpm</span>, Suhu: <span id="print-suhu">36.8 C</span>, IMT: <span id="print-imt">23.4</span></p>
+          <p><strong>Keluhan & Anamnesis (S):</strong> <span id="print-s">-</span></p>
+          <p><strong>Pemeriksaan Fisik (O):</strong> <span id="print-o">-</span></p>
+          <p><strong>Diagnosis Primer (ICD-10):</strong> <span id="print-diagnosis" class="text-bold">-</span></p>
+          <p><strong>Terapi & Tindakan (P):</strong> <span id="print-terapi">-</span></p>
+          <p><strong>Obat Diberikan:</strong> <span id="print-resep">-</span></p>
+        </div>
+
+        <div class="print-signatures">
+          <div class="sig-box">
+            <p>Pasien / Keluarga,</p>
+            <div class="sig-space"></div>
+            <p>(................................................)</p>
+          </div>
+          <div class="sig-box">
+            <p>Dokter Penanggung Jawab Pelayanan,</p>
+            <div class="qr-tte-box">
+              <span class="qr-sim">QR TTE BSrE VALID</span>
+            </div>
+            <p><strong id="print-dokter-name">dr. Aulia Rahma, Sp.KKLP</strong></p>
+            <p>SIP: 503/128/SIP-D/2024</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-resume">Tutup</button>
+        <button class="btn btn-primary" id="btn-do-print-resume">
+          Cetak Dokumen Resmi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
